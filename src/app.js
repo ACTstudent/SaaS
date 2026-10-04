@@ -683,6 +683,23 @@
     requestAnimationFrame(() => { box.autosize(); runDemo(); });
     window.addEventListener('resize', debounce(() => { box.autosize(); box.paint(); }, 120));
 
+    // Landing sections ease in as they reach the viewport. Content stays visible without the observer,
+    // and the CSS only animates when the visitor allows motion.
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('is-in');
+        io.unobserve(e.target);
+      }), { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+      document.querySelectorAll('#view-landing [data-reveal]').forEach((el) => {
+        const sibs = [...el.parentElement.children].filter((c) => c.hasAttribute('data-reveal'));
+        const i = sibs.indexOf(el);
+        if (i > 0) el.style.setProperty('--d', Math.min(i, 5) * 70 + 'ms');
+        io.observe(el);
+      });
+      $('#view-landing').classList.add('lp-reveal');
+    }
+
     document.querySelectorAll('[data-upgrade]').forEach((b) => b.addEventListener('click', () => openUpgrade('pricing')));
     document.querySelectorAll('[data-create]').forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); startCreate(); }));
   }
