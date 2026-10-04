@@ -653,8 +653,12 @@
     T.TEMPLATES.forEach((t, i) => {
       const preset = T.PRESETS[i % T.PRESETS.length];
       const r = Object.assign(clone(sample), { template: t.id, accent: preset.accent, font: preset.font });
-      strip.append(h('button', { class: 'tpl-card', type: 'button', onclick: () => startCreate({ template: t.id, accent: preset.accent, font: preset.font, preset: preset.id }) },
-        makeThumb(r), h('span', { class: 'btn btn-primary use', text: 'Use this template' }), h('strong', { text: t.name }), h('span', { class: 'note', text: t.note })));
+      // The whole card is the button. "Use template" stays visible so touch screens get the cue too.
+      strip.append(h('button', { class: 'tpl-card', type: 'button', 'aria-label': `Use the ${t.name} template. ${t.note}`, onclick: () => startCreate({ template: t.id, accent: preset.accent, font: preset.font, preset: preset.id }) },
+        makeThumb(r),
+        h('span', { class: 'tpl-meta' },
+          h('span', { class: 'tpl-text' }, h('strong', { text: t.name }), h('span', { class: 'tpl-note', text: t.note })),
+          h('span', { class: 'tpl-use', html: 'Use<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>' }))));
     });
 
     // Legend

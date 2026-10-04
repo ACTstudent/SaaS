@@ -157,13 +157,19 @@ body.in-editor .topbar { display: none; }
 .landing h1, .landing h2 { font-family: var(--lp-serif); font-weight: 500; letter-spacing: -0.015em; }
 .landing h1 em, .landing h2 em { font-style: italic; font-weight: 400; padding-bottom: .06em; }
 
+/* body is fixed at 100% height for the editor, which also stops the sticky top bar after one screen.
+   On the landing the body grows with the page so the bar stays put, and anchors land below it. */
+body:not(.in-app) { height: auto; }
+.landing [id] { scroll-margin-top: 68px; }
+.landing a, .landing button { touch-action: manipulation; }
+
 /* Landing top bar: same markup as the app's, dressed as a masthead */
 body:not(.in-app) .topbar { background: color-mix(in srgb, #F7F7F4 92%, transparent); border-bottom-color: #D9D7D1; backdrop-filter: saturate(140%) blur(10px); -webkit-backdrop-filter: saturate(140%) blur(10px); }
 body:not(.in-app) .topnav a { color: #41454E; }
 body:not(.in-app) .topnav a:hover { color: #16181D; text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1px; }
 body:not(.in-app) #top-cta { background: #16181D; color: #FFFFFF; border-radius: 6px; }
 body:not(.in-app) #top-cta:hover { background: #2B2E35; }
-body:not(.in-app) .plan-pill { background: transparent; border: 1px solid #D9D7D1; }
+body:not(.in-app) .plan-pill { background: transparent; border: 1px solid #D9D7D1; white-space: nowrap; }
 
 /* Buttons used on the landing only */
 .btn-ink { background: var(--lp-ink); color: #FFFFFF; border-radius: 6px; }
@@ -230,6 +236,8 @@ body:not(.in-app) .plan-pill { background: transparent; border: 1px solid #D9D7D
   .hero-art .thumb { width: 190px; }
   .hero-art .a2 { width: 205px; }
   .float-chip { min-width: 0; max-width: 66%; }
+  /* Two notes don't fit side by side here, so the score note moves above the sheets. */
+  .float-chip.c1 { top: 0; bottom: auto; }
 }
 
 /* Plan terms under the hero, set like a ruled masthead line */
@@ -269,16 +277,27 @@ body:not(.in-app) .plan-pill { background: transparent; border: 1px solid #D9D7D
   .steps li + li { border-top: 1px solid var(--lp-rule); }
 }
 
-/* Template rail: real renders laid out like sheets on a desk */
-.tpl-rail { display: flex; gap: 32px; overflow-x: auto; padding: 12px max(20px, calc((100% - 1120px) / 2)) 40px; scroll-snap-type: x mandatory; scroll-padding-inline: max(20px, calc((100% - 1120px) / 2)); scrollbar-width: thin; }
-.tpl-card { flex: 0 0 250px; display: grid; gap: 6px; background: none; border: 0; padding: 0; text-align: left; cursor: pointer; scroll-snap-align: start; position: relative; }
-.tpl-card .thumb { margin-bottom: 10px; border: 0; border-radius: 2px; box-shadow: var(--lp-sheet); transition: translate .35s var(--lp-ease), box-shadow .35s var(--lp-ease); }
-.tpl-card .use { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); opacity: 0; transition: opacity .2s; pointer-events: none; background: var(--lp-ink); color: #FFFFFF; border-radius: 6px; }
+/* Template gallery: real renders laid out like sheets on a desk.
+   Desktop shows all five in one row; narrower screens scroll sideways with the next card peeking in. */
+.tpl-rail { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 28px; max-width: 1160px; margin: 0 auto; padding: 8px 20px 44px; }
+.tpl-card { display: grid; grid-template-rows: auto 1fr; align-content: start; gap: 16px; min-width: 0; background: none; border: 0; padding: 0; text-align: left; cursor: pointer; color: inherit; touch-action: manipulation; }
+.tpl-card .thumb { border: 0; border-radius: 2px; box-shadow: var(--lp-sheet); transition: translate .35s var(--lp-ease), box-shadow .35s var(--lp-ease); }
 .tpl-card:hover .thumb, .tpl-card:focus-visible .thumb { translate: 0 -6px; box-shadow: 0 0 0 2px var(--lp-ink), var(--lp-sheet); }
-.tpl-card:hover .use, .tpl-card:focus-visible .use { opacity: 1; }
-.tpl-card strong { font-family: var(--lp-serif); font-size: 22px; font-weight: 500; font-style: italic; line-height: 1.2; color: var(--lp-ink); }
-.tpl-card span.note { padding: 0; background: none; border-radius: 0; font-size: 14px; color: var(--lp-muted); }
+.tpl-card:focus-visible { outline: none; }
+.tpl-meta { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding-top: 14px; border-top: 1px solid var(--lp-rule); }
+.tpl-text { display: grid; gap: 4px; min-width: 0; }
+.tpl-card strong { font-family: var(--lp-serif); font-size: 22px; font-weight: 500; font-style: italic; line-height: 1.15; color: var(--lp-ink); }
+.tpl-note { font-size: 14px; line-height: 1.45; color: var(--lp-muted); }
+.tpl-use { flex: none; display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 14px; font-weight: 600; color: var(--lp-ink); }
+.tpl-use svg { width: 14px; height: 14px; transition: translate .25s var(--lp-ease); }
+.tpl-card:hover .tpl-use, .tpl-card:focus-visible .tpl-use { color: var(--lp-accent); }
+.tpl-card:hover .tpl-use svg, .tpl-card:focus-visible .tpl-use svg { translate: 3px 0; }
 .rail-foot { display: flex; justify-content: flex-start; }
+@media (max-width: 1100px) {
+  .tpl-rail { display: flex; gap: 20px; max-width: none; overflow-x: auto; padding: 8px 20px 36px; scroll-snap-type: x mandatory; scroll-padding-inline: 20px; overscroll-behavior-x: contain; scrollbar-width: none; }
+  .tpl-rail::-webkit-scrollbar { display: none; }
+  .tpl-card { flex: 0 0 min(240px, 70vw); scroll-snap-align: start; }
+}
 
 /* Assistant */
 .split { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 64px; align-items: center; }
