@@ -11,7 +11,7 @@
 <link rel="manifest" href="public/site.webmanifest">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Inkwell Resume Builder">
-<meta property="og:description" content="Build a professional resume in minutes. 3 resumes free, upgrade once for $10. No subscription.">
+<meta property="og:description" content="Build a professional resume in minutes. Free, with no account and no limit on resumes.">
 <meta property="og:image" content="public/og.png">
 <meta name="twitter:card" content="summary_large_image">
 <!-- SITE:END -->
@@ -30,11 +30,9 @@
   <nav class="topnav" id="topnav" aria-label="Page sections">
     <a href="#templates">Resume templates</a>
     <a href="#assistant">Writing Assistant</a>
-    <a href="#pricing">Pricing</a>
     <a href="#faq">FAQ</a>
   </nav>
   <div class="topbar-right">
-    <button class="plan-pill" id="plan-pill" type="button"><span class="dot"></span><span class="plan-label" id="plan-label">Free</span><span class="num" id="plan-count">0 of 3</span></button>
     <a class="toplink" href="#resumes" id="top-account">My resumes</a>
     <a class="btn btn-primary" href="#resumes" id="top-cta" data-create>Create my resume</a>
   </div>
@@ -55,12 +53,12 @@
     </div>
   </section>
 
-  <section class="terms-strip" aria-label="Plan summary">
+  <section class="terms-strip" aria-label="At a glance">
     <ul class="wrap terms-list">
-      <li><strong>3 resumes</strong><span>free, with every feature</span></li>
-      <li><strong>$10 once</strong><span>to keep up to 20</span></li>
-      <li><strong>No subscription</strong><span>nothing renews</span></li>
-      <li><strong>No account</strong><span>saves in your browser</span></li>
+      <li><strong>Free</strong><span>every feature included</span></li>
+      <li><strong>Unlimited resumes</strong><span>one for every job</span></li>
+      <li><strong>No account</strong><span>nothing to sign up for</span></li>
+      <li><strong>Private</strong><span>saves in your browser</span></li>
     </ul>
   </section>
 
@@ -143,37 +141,13 @@
     </div>
   </section>
 
-  <section class="band band-desk" id="pricing">
-    <div class="wrap">
-      <div class="section-head center" data-reveal>
-        <h2>Simple pricing. <em>Pay once, if ever.</em></h2>
-        <p>Every feature is free. Upgrading only raises how many resumes you can keep.</p>
-      </div>
-      <div class="pricing">
-        <div class="price-card" data-reveal>
-          <h3>Free</h3>
-          <div class="price"><strong>$0</strong></div>
-          <ul class="ticks"><li>3 resumes</li><li>All templates and presets</li><li>Full Writing Assistant</li><li>PDF export</li></ul>
-          <a class="btn btn-paper btn-lg" href="#resumes" data-create>Start free</a>
-        </div>
-        <div class="price-card featured" data-reveal>
-          <div class="ribbon">One-time</div>
-          <h3>Upgrade</h3>
-          <div class="price"><strong>$10</strong><span>once</span></div>
-          <ul class="ticks"><li>20 resumes</li><li>Everything in Free</li><li>No subscription, no renewal</li></ul>
-          <button class="btn btn-ink btn-lg" type="button" data-upgrade>Upgrade for $10</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <section class="band" id="faq">
     <div class="wrap faq-layout">
       <div class="section-head" data-reveal><h2>Frequently asked <em>questions</em></h2></div>
       <div class="faq">
         <details><summary>Where are my resumes stored?</summary><p>In your browser on this device. There is no account and no server copy. Use Back up resumes on the Resumes page to keep a copy or move to another device.</p></details>
         <details><summary>Does the Writing Assistant use AI?</summary><p>No. It is a set of writing rules built for resumes that runs on your device, so it works offline and never sends your text anywhere.</p></details>
-        <details><summary>Is the upgrade a subscription?</summary><p>No. You pay $10 once and can keep up to 20 resumes. Nothing renews.</p></details>
+        <details><summary>Is it really free?</summary><p>Yes. Every template, the Writing Assistant and PDF export are free, with no limit on how many resumes you keep. There is no account and nothing to pay.</p></details>
         <details><summary>Will applicant tracking systems read my PDF?</summary><p>Yes. Export keeps your text as real text rather than an image. For the safest result, choose the ATS simple template.</p></details>
         <details><summary>Can I switch templates after I start?</summary><p>Yes. Your content stays the same and the new layout applies instantly.</p></details>
       </div>
@@ -183,7 +157,7 @@
   <section class="cta-band">
     <div class="wrap cta-inner" data-reveal>
       <h2>Ready to build <em>your resume?</em></h2>
-      <p>It takes a few minutes, and the first 3 are free.</p>
+      <p>It takes a few minutes, and it’s free.</p>
       <a class="btn btn-ink btn-xl" href="#resumes" data-create>Create my resume</a>
     </div>
   </section>
@@ -254,9 +228,7 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div id="print-root"></div>
 <!-- BODY:END -->
-<script src="src/config.js"></script>
 <script src="src/engine.js"></script>
-<script src="src/license.js"></script>
 <script src="src/templates.js"></script>
 <script src="src/app.js"></script>
 </body>

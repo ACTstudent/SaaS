@@ -13,7 +13,7 @@ const siteUrl = (process.env.SITE_URL || '').replace(/\/+$/, '');
 
 const html = read('index.html');
 const css = read('src/styles.css');
-const js = ['src/config.js', 'src/engine.js', 'src/license.js', 'src/templates.js', 'src/app.js'].map(read).join('\n');
+const js = ['src/engine.js', 'src/templates.js', 'src/app.js'].map(read).join('\n');
 
 const title = html.match(/<title>[\s\S]*?<\/title>/)[0];
 const meta = html.match(/<meta name="description"[^>]*>/)[0];
