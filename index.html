@@ -17,7 +17,7 @@
 <!-- SITE:END -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Source+Sans+3:wght@400;600;700&family=EB+Garamond:wght@400;600;700&family=Lato:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Source+Sans+3:wght@400;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Lato:wght@400;700&display=swap">
 <link rel="stylesheet" href="src/styles.css">
 </head>
 <body>
@@ -44,51 +44,56 @@
   <section class="hero" id="home">
     <div class="wrap hero-grid">
       <div class="hero-copy">
-        <h1>Build a professional resume in minutes.</h1>
+        <h1>Build a professional resume <em>in minutes.</em></h1>
         <p class="hero-lede">Choose a beautiful template, write your experience, and let the built-in Resume Writing Assistant polish your wording.</p>
         <div class="hero-cta">
-          <a class="btn btn-primary btn-xl" href="#resumes" data-create>Create my resume</a>
+          <a class="btn btn-ink btn-xl" href="#resumes" data-create>Create my resume</a>
+          <a class="btn btn-paper btn-xl" href="#templates">See templates</a>
         </div>
-        <ul class="hero-facts">
-          <li>3 resumes free</li>
-          <li>Upgrade once for $10 and create up to 20</li>
-          <li>No subscription</li>
-        </ul>
       </div>
       <div class="hero-art" id="hero-art" aria-hidden="true"></div>
     </div>
   </section>
 
+  <section class="terms-strip" aria-label="Plan summary">
+    <ul class="wrap terms-list">
+      <li><strong>3 resumes</strong><span>free, with every feature</span></li>
+      <li><strong>$10 once</strong><span>to keep up to 20</span></li>
+      <li><strong>No subscription</strong><span>nothing renews</span></li>
+      <li><strong>No account</strong><span>saves in your browser</span></li>
+    </ul>
+  </section>
+
   <section class="band" id="how">
     <div class="wrap">
-      <div class="section-head center">
-        <h2>Your resume in three steps</h2>
+      <div class="section-head" data-reveal>
+        <h2>Your resume in <em>three steps</em></h2>
         <p>No account to create. Everything saves as you type.</p>
       </div>
       <ol class="steps">
-        <li><span class="step-n">1</span><h3>Pick a template</h3><p>Start from one of five layouts and a design preset. Switch any time without retyping.</p></li>
-        <li><span class="step-n">2</span><h3>Fill in your story</h3><p>Add your experience while the Writing Assistant flags weak verbs, typos and filler as you go.</p></li>
-        <li><span class="step-n">3</span><h3>Download a PDF</h3><p>Export a clean PDF that applicant tracking systems can read, or copy plain text for online forms.</p></li>
+        <li data-reveal><span class="step-n">1</span><h3>Pick a template</h3><p>Start from one of five layouts and a design preset. Switch any time without retyping.</p></li>
+        <li data-reveal><span class="step-n">2</span><h3>Fill in your story</h3><p>Add your experience while the Writing Assistant flags weak verbs, typos and filler as you go.</p></li>
+        <li data-reveal><span class="step-n">3</span><h3>Download a PDF</h3><p>Export a clean PDF that applicant tracking systems can read, or copy plain text for online forms.</p></li>
       </ol>
     </div>
   </section>
 
-  <section class="band band-tint" id="templates">
+  <section class="band band-desk" id="templates">
     <div class="wrap">
-      <div class="section-head center">
-        <h2>Resume templates that get read</h2>
+      <div class="section-head" data-reveal>
+        <h2>Resume templates <em>that get read</em></h2>
         <p>Clean layouts recruiters can scan in seconds. Each one renders your content live as you type.</p>
       </div>
     </div>
     <div class="tpl-rail" id="tpl-strip"></div>
-    <div class="wrap center"><a class="btn btn-primary btn-lg" href="#resumes" data-create>Choose a template</a></div>
+    <div class="wrap rail-foot"><a class="btn btn-ink btn-lg" href="#resumes" data-create>Choose a template</a></div>
   </section>
 
   <section class="band" id="assistant">
     <div class="wrap split">
-      <div class="split-copy">
+      <div class="split-copy" data-reveal>
         <div class="kicker">Built-in Resume Writing Assistant</div>
-        <h2>Write it once. Let the assistant make it sharper.</h2>
+        <h2>Write it once. Let the assistant make it <em>sharper.</em></h2>
         <p>It reads every line as you type and marks what to fix, from spelling to passive phrasing. It runs on your device, so your text never leaves your browser.</p>
         <ul class="ticks">
           <li>Grammar and spelling correction</li>
@@ -101,7 +106,7 @@
           <li>Resume-specific suggestions</li>
         </ul>
       </div>
-      <div class="demo" aria-label="Try the Resume Writing Assistant">
+      <div class="demo" aria-label="Try the Resume Writing Assistant" data-reveal>
         <div class="demo-head">
           <strong>Try it on a rough bullet</strong>
           <button class="btn btn-ghost btn-sm" type="button" id="demo-reset">Reset</button>
@@ -122,49 +127,49 @@
     </div>
   </section>
 
-  <section class="band band-tint">
+  <section class="band band-rule">
     <div class="wrap">
-      <div class="section-head center">
-        <h2>Everything you need to finish today</h2>
+      <div class="section-head" data-reveal>
+        <h2>Everything you need to <em>finish today</em></h2>
       </div>
       <div class="feature-grid">
-        <div class="feature"><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><h3>Professional templates</h3><p>Five layouts, including a plain one that parses cleanly in applicant tracking systems.</p></div>
-        <div class="feature"><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><circle cx="12" cy="15" r="3"/></svg></span><h3>Design presets</h3><p>Six color and font pairings, plus your own accent color, spacing and paper size.</p></div>
-        <div class="feature"><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg></span><h3>Drag to reorder</h3><p>Move sections and jobs into the order that tells your story best.</p></div>
-        <div class="feature"><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></span><h3>Live preview</h3><p>See the finished page update with every keystroke, with page breaks marked.</p></div>
-        <div class="feature"><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 20h14"/></svg></span><h3>PDF export</h3><p>Download a PDF with real, selectable text, or copy plain text for online forms.</p></div>
-        <div class="feature"><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></span><h3>Works on any screen</h3><p>Edit on your laptop or your phone. Your work saves in the browser as you type.</p></div>
+        <div class="feature" data-reveal><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><div><h3>Professional templates</h3><p>Five layouts, including a plain one that parses cleanly in applicant tracking systems.</p></div></div>
+        <div class="feature" data-reveal><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><circle cx="12" cy="15" r="3"/></svg></span><div><h3>Design presets</h3><p>Six color and font pairings, plus your own accent color, spacing and paper size.</p></div></div>
+        <div class="feature" data-reveal><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg></span><div><h3>Drag to reorder</h3><p>Move sections and jobs into the order that tells your story best.</p></div></div>
+        <div class="feature" data-reveal><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></span><div><h3>Live preview</h3><p>See the finished page update with every keystroke, with page breaks marked.</p></div></div>
+        <div class="feature" data-reveal><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 20h14"/></svg></span><div><h3>PDF export</h3><p>Download a PDF with real, selectable text, or copy plain text for online forms.</p></div></div>
+        <div class="feature" data-reveal><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></span><div><h3>Works on any screen</h3><p>Edit on your laptop or your phone. Your work saves in the browser as you type.</p></div></div>
       </div>
     </div>
   </section>
 
-  <section class="band" id="pricing">
+  <section class="band band-desk" id="pricing">
     <div class="wrap">
-      <div class="section-head center">
-        <h2>Simple pricing. Pay once, if ever.</h2>
+      <div class="section-head center" data-reveal>
+        <h2>Simple pricing. <em>Pay once, if ever.</em></h2>
         <p>Every feature is free. Upgrading only raises how many resumes you can keep.</p>
       </div>
       <div class="pricing">
-        <div class="price-card">
+        <div class="price-card" data-reveal>
           <h3>Free</h3>
           <div class="price"><strong>$0</strong></div>
           <ul class="ticks"><li>3 resumes</li><li>All templates and presets</li><li>Full Writing Assistant</li><li>PDF export</li></ul>
-          <a class="btn btn-outline btn-lg" href="#resumes" data-create>Start free</a>
+          <a class="btn btn-paper btn-lg" href="#resumes" data-create>Start free</a>
         </div>
-        <div class="price-card featured">
+        <div class="price-card featured" data-reveal>
           <div class="ribbon">One-time</div>
           <h3>Upgrade</h3>
           <div class="price"><strong>$10</strong><span>once</span></div>
           <ul class="ticks"><li>20 resumes</li><li>Everything in Free</li><li>No subscription, no renewal</li></ul>
-          <button class="btn btn-primary btn-lg" type="button" data-upgrade>Upgrade for $10</button>
+          <button class="btn btn-ink btn-lg" type="button" data-upgrade>Upgrade for $10</button>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="band band-tint" id="faq">
-    <div class="wrap narrow">
-      <div class="section-head center"><h2>Frequently asked questions</h2></div>
+  <section class="band" id="faq">
+    <div class="wrap faq-layout">
+      <div class="section-head" data-reveal><h2>Frequently asked <em>questions</em></h2></div>
       <div class="faq">
         <details><summary>Where are my resumes stored?</summary><p>In your browser on this device. There is no account and no server copy. Use Back up resumes on the Resumes page to keep a copy or move to another device.</p></details>
         <details><summary>Does the Writing Assistant use AI?</summary><p>No. It is a set of writing rules built for resumes that runs on your device, so it works offline and never sends your text anywhere.</p></details>
@@ -176,17 +181,17 @@
   </section>
 
   <section class="cta-band">
-    <div class="wrap center">
-      <h2>Ready to build your resume?</h2>
+    <div class="wrap cta-inner" data-reveal>
+      <h2>Ready to build <em>your resume?</em></h2>
       <p>It takes a few minutes, and the first 3 are free.</p>
-      <a class="btn btn-white btn-xl" href="#resumes" data-create>Create my resume</a>
+      <a class="btn btn-ink btn-xl" href="#resumes" data-create>Create my resume</a>
     </div>
   </section>
 
   <footer class="footer">
     <div class="wrap footer-row">
       <span class="brand small"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M8 1.5 12.5 7 8 14.5 3.5 7Z"/><path d="M8 7v3.2"/></svg></span>Inkwell</span>
-      <span>Your resumes stay in your browser. <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
+      <span>Your resumes stay in your browser. <a href="privacy.html">Privacy</a> <span aria-hidden="true">/</span> <a href="terms.html">Terms</a></span>
     </div>
   </footer>
 </main>
