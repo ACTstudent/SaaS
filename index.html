@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inkwell Resume Builder</title>
+<meta name="description" content="Build a professional resume in minutes with templates, live preview, PDF export and a built-in Resume Writing Assistant that runs in your browser.">
+<!-- SITE:START -->
+<meta name="theme-color" content="#2470DC">
+<link rel="icon" href="public/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="public/site.webmanifest">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Inkwell Resume Builder">
+<meta property="og:description" content="Build a professional resume in minutes. 3 resumes free, upgrade once for $10. No subscription.">
+<meta property="og:image" content="public/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<!-- SITE:END -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Source+Sans+3:wght@400;600;700&family=EB+Garamond:wght@400;600;700&family=Lato:wght@400;700&display=swap">
+<link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+<!-- BODY:START -->
+<header class="topbar" id="topbar">
+  <a class="brand" href="#home" aria-label="Inkwell home">
+    <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M8 1.5 12.5 7 8 14.5 3.5 7Z"/><path d="M8 7v3.2"/><circle cx="8" cy="6.2" r=".9" fill="currentColor" stroke="none"/></svg></span>
+    <span>Inkwell</span>
+  </a>
+  <nav class="topnav" id="topnav" aria-label="Page sections">
+    <a href="#templates">Resume templates</a>
+    <a href="#assistant">Writing Assistant</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <div class="topbar-right">
+    <button class="plan-pill" id="plan-pill" type="button"><span class="dot"></span><span class="plan-label" id="plan-label">Free</span><span class="num" id="plan-count">0 of 3</span></button>
+    <a class="toplink" href="#resumes" id="top-account">My resumes</a>
+    <a class="btn btn-primary" href="#resumes" id="top-cta" data-create>Create my resume</a>
+  </div>
+</header>
+
+<main id="view-landing" class="landing">
+  <section class="hero" id="home">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <h1>Build a professional resume in minutes.</h1>
+        <p class="hero-lede">Choose a beautiful template, write your experience, and let the built-in Resume Writing Assistant polish your wording.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary btn-xl" href="#resumes" data-create>Create my resume</a>
+        </div>
+        <ul class="hero-facts">
+          <li>3 resumes free</li>
+          <li>Upgrade once for $10 and create up to 20</li>
+          <li>No subscription</li>
+        </ul>
+      </div>
+      <div class="hero-art" id="hero-art" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <section class="band" id="how">
+    <div class="wrap">
+      <div class="section-head center">
+        <h2>Your resume in three steps</h2>
+        <p>No account to create. Everything saves as you type.</p>
+      </div>
+      <ol class="steps">
+        <li><span class="step-n">1</span><h3>Pick a template</h3><p>Start from one of five layouts and a design preset. Switch any time without retyping.</p></li>
+        <li><span class="step-n">2</span><h3>Fill in your story</h3><p>Add your experience while the Writing Assistant flags weak verbs, typos and filler as you go.</p></li>
+        <li><span class="step-n">3</span><h3>Download a PDF</h3><p>Export a clean PDF that applicant tracking systems can read, or copy plain text for online forms.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band band-tint" id="templates">
+    <div class="wrap">
+      <div class="section-head center">
+        <h2>Resume templates that get read</h2>
+        <p>Clean layouts recruiters can scan in seconds. Each one renders your content live as you type.</p>
+      </div>
+    </div>
+    <div class="tpl-rail" id="tpl-strip"></div>
+    <div class="wrap center"><a class="btn btn-primary btn-lg" href="#resumes" data-create>Choose a template</a></div>
+  </section>
+
+  <section class="band" id="assistant">
+    <div class="wrap split">
+      <div class="split-copy">
+        <div class="kicker">Built-in Resume Writing Assistant</div>
+        <h2>Write it once. Let the assistant make it sharper.</h2>
+        <p>It reads every line as you type and marks what to fix, from spelling to passive phrasing. It runs on your device, so your text never leaves your browser.</p>
+        <ul class="ticks">
+          <li>Grammar and spelling correction</li>
+          <li>Fixes awkward sentences</li>
+          <li>Rephrase and make concise</li>
+          <li>Professional tone</li>
+          <li>Stronger action verbs</li>
+          <li>Removes unnecessary words</li>
+          <li>Detects repeated words</li>
+          <li>Resume-specific suggestions</li>
+        </ul>
+      </div>
+      <div class="demo" aria-label="Try the Resume Writing Assistant">
+        <div class="demo-head">
+          <strong>Try it on a rough bullet</strong>
+          <button class="btn btn-ghost btn-sm" type="button" id="demo-reset">Reset</button>
+        </div>
+        <div class="demo-body">
+          <div class="field">
+            <div class="demo-label"><label for="demo-input">Your draft</label><span class="hint" id="demo-count"></span></div>
+            <div id="demo-box"></div>
+          </div>
+          <div class="demo-chips" id="demo-chips"></div>
+          <div class="field">
+            <div class="demo-label"><span class="label">After Polish</span><button class="btn btn-sm" type="button" id="demo-apply">Use this version</button></div>
+            <div class="demo-after" id="demo-after" aria-live="polite"></div>
+          </div>
+        </div>
+        <div class="mark-legend" id="mark-legend" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band-tint">
+    <div class="wrap">
+      <div class="section-head center">
+        <h2>Everything you need to finish today</h2>
+      </div>
+      <div class="feature-grid">
+        <div class="feature"><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><h3>Professional templates</h3><p>Five layouts, including a plain one that parses cleanly in applicant tracking systems.</p></div>
+        <div class="feature"><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><circle cx="12" cy="15" r="3"/></svg></span><h3>Design presets</h3><p>Six color and font pairings, plus your own accent color, spacing and paper size.</p></div>
+        <div class="feature"><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg></span><h3>Drag to reorder</h3><p>Move sections and jobs into the order that tells your story best.</p></div>
+        <div class="feature"><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></span><h3>Live preview</h3><p>See the finished page update with every keystroke, with page breaks marked.</p></div>
+        <div class="feature"><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 20h14"/></svg></span><h3>PDF export</h3><p>Download a PDF with real, selectable text, or copy plain text for online forms.</p></div>
+        <div class="feature"><span class="f-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></span><h3>Works on any screen</h3><p>Edit on your laptop or your phone. Your work saves in the browser as you type.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="pricing">
+    <div class="wrap">
+      <div class="section-head center">
+        <h2>Simple pricing. Pay once, if ever.</h2>
+        <p>Every feature is free. Upgrading only raises how many resumes you can keep.</p>
+      </div>
+      <div class="pricing">
+        <div class="price-card">
+          <h3>Free</h3>
+          <div class="price"><strong>$0</strong></div>
+          <ul class="ticks"><li>3 resumes</li><li>All templates and presets</li><li>Full Writing Assistant</li><li>PDF export</li></ul>
+          <a class="btn btn-outline btn-lg" href="#resumes" data-create>Start free</a>
+        </div>
+        <div class="price-card featured">
+          <div class="ribbon">One-time</div>
+          <h3>Upgrade</h3>
+          <div class="price"><strong>$10</strong><span>once</span></div>
+          <ul class="ticks"><li>20 resumes</li><li>Everything in Free</li><li>No subscription, no renewal</li></ul>
+          <button class="btn btn-primary btn-lg" type="button" data-upgrade>Upgrade for $10</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band-tint" id="faq">
+    <div class="wrap narrow">
+      <div class="section-head center"><h2>Frequently asked questions</h2></div>
+      <div class="faq">
+        <details><summary>Where are my resumes stored?</summary><p>In your browser on this device. There is no account and no server copy. Use Back up resumes on the Resumes page to keep a copy or move to another device.</p></details>
+        <details><summary>Does the Writing Assistant use AI?</summary><p>No. It is a set of writing rules built for resumes that runs on your device, so it works offline and never sends your text anywhere.</p></details>
+        <details><summary>Is the upgrade a subscription?</summary><p>No. You pay $10 once and can keep up to 20 resumes. Nothing renews.</p></details>
+        <details><summary>Will applicant tracking systems read my PDF?</summary><p>Yes. Export keeps your text as real text rather than an image. For the safest result, choose the ATS simple template.</p></details>
+        <details><summary>Can I switch templates after I start?</summary><p>Yes. Your content stays the same and the new layout applies instantly.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="wrap center">
+      <h2>Ready to build your resume?</h2>
+      <p>It takes a few minutes, and the first 3 are free.</p>
+      <a class="btn btn-white btn-xl" href="#resumes" data-create>Create my resume</a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="wrap footer-row">
+      <span class="brand small"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M8 1.5 12.5 7 8 14.5 3.5 7Z"/><path d="M8 7v3.2"/></svg></span>Inkwell</span>
+      <span>Your resumes stay in your browser. <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span>
+    </div>
+  </footer>
+</main>
+
+<main id="view-dashboard" class="dash" hidden>
+  <div class="wrap">
+    <div class="dash-head">
+      <h1>Resumes</h1>
+      <button class="btn btn-primary" type="button" id="dash-new"><span aria-hidden="true">+</span> Create new</button>
+    </div>
+    <div class="usage" id="usage"></div>
+    <div class="dash-list" id="dash-grid"></div>
+    <div class="dash-foot" id="dash-foot"></div>
+  </div>
+</main>
+
+<main id="view-editor" class="editor" hidden>
+  <section class="ed-form" aria-label="Resume content">
+    <div class="ed-scroll" id="form-scroll">
+      <div class="ed-inner">
+        <div class="ed-top">
+          <a class="backlink" href="#resumes"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>My resumes</a>
+          <button class="assist-btn" type="button" id="assist-open"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 1.5v3M8 11.5v3M1.5 8h3M11.5 8h3M3.4 3.4l2 2M10.6 10.6l2 2M12.6 3.4l-2 2M5.4 10.6l-2 2"/></svg>Writing Assistant <span class="count num" id="assist-count"></span></button>
+        </div>
+        <div class="title-row"><input class="doc-name" id="doc-name" aria-label="Resume name"><svg class="pencil" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M11 2.5l2.5 2.5L6 12.5 3 13l.5-3Z"/></svg></div>
+        <div class="score" id="score"></div>
+        <div class="form-body" id="form-body"></div>
+      </div>
+    </div>
+  </section>
+  <section class="ed-preview" id="ed-preview" aria-label="Live preview">
+    <button class="preview-close" type="button" id="preview-close" aria-label="Close preview"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg></button>
+    <div class="page-scroll" id="page-scroll"><div class="page-holder" id="page-holder"></div></div>
+    <div class="ed-bar">
+      <button class="bar-btn" type="button" id="open-picker"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>Select template</button>
+      <span class="page-info num" id="page-info">Letter</span>
+      <span class="bar-right">
+        <button class="bar-btn" type="button" id="copy-text">Copy text</button>
+        <button class="btn btn-primary" type="button" id="export-pdf">Download PDF</button>
+      </span>
+    </div>
+  </section>
+  <aside class="pane-assist" id="assist" aria-label="Resume Writing Assistant"></aside>
+  <button class="fab" type="button" id="fab-preview" aria-label="Preview and download"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+</main>
+
+<div class="picker" id="picker" hidden>
+  <div class="picker-top">
+    <button class="bar-btn light" type="button" id="picker-back"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3 5 8l5 5"/></svg>Back to editor</button>
+    <div class="picker-colors" id="picker-colors"></div>
+    <button class="btn btn-primary" type="button" id="picker-pdf">Download PDF</button>
+  </div>
+  <div class="picker-main">
+    <div class="picker-side" id="picker-side"></div>
+    <div class="picker-preview" id="picker-preview"><div class="page-holder" id="picker-holder"></div></div>
+  </div>
+</div>
+
+<div id="modal-root"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="print-root"></div>
+<!-- BODY:END -->
+<script src="src/config.js"></script>
+<script src="src/engine.js"></script>
+<script src="src/license.js"></script>
+<script src="src/templates.js"></script>
+<script src="src/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+:root { --bg: #EDEFEC; --surface: #FFFFFF; --ink: #16191E; --muted: #5B6270; --line: #D7DBD4; --primary: #1B3556; }
+@media (prefers-color-scheme: dark) { :root { --bg: #111317; --surface: #181B20; --ink: #E7E9EC; --muted: #9CA3AE; --line: #2B3038; --primary: #A9C2E6; color-scheme: dark; } }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.65 'Schibsted Grotesk', 'Helvetica Neue', Arial, sans-serif; padding: 40px 20px 64px; }
+main { max-width: 680px; margin: 0 auto; }
+a { color: var(--primary); }
+h1 { font-size: 34px; line-height: 1.1; letter-spacing: -0.02em; margin: 24px 0 6px; }
+h2 { font-size: 19px; margin: 32px 0 6px; }
+p, li { color: var(--ink); }
+.muted { color: var(--muted); font-size: 14px; }
+.back { font-weight: 600; text-decoration: none; }
