@@ -805,7 +805,8 @@
         input('c:phone', 'Phone', { type: 'tel', autocomplete: 'tel' }),
         input('c:location', 'City, State', { placeholder: 'e.g. Austin, TX' }),
         input('c:linkedin', 'LinkedIn', { placeholder: 'linkedin.com/in/you' }),
-        input('c:website', 'Website or portfolio'))));
+        input('c:website', 'Website or portfolio')),
+      photoField()));
 
     r.sections.forEach((s, idx) => body.append(sectionBlock(s, idx, r.sections.length)));
 
@@ -822,6 +823,73 @@
       updateFieldCounts();
       $('#form-scroll').scrollTop = scrollTop;
       if (window.innerWidth <= 1000) window.scrollTo(0, winTop);
+    });
+  }
+
+  // Photo for the Photo template. It is cropped to a square and shrunk before saving, so a phone picture
+  // of several MB takes about 25 KB of the browser's storage.
+  function photoField() {
+    const r = current();
+    const preview = h('div', { class: 'photo-preview', 'aria-hidden': 'true' });
+    const msg = h('div', { class: 'hint', 'aria-live': 'polite' });
+    const file = h('input', { type: 'file', id: 'f-photo', accept: 'image/jpeg,image/png,image/webp', class: 'photo-file', tabindex: '-1', 'aria-hidden': 'true' });
+    const add = h('button', { class: 'btn btn-sm', type: 'button', onclick: () => file.click() });
+    const remove = h('button', { class: 'btn btn-sm btn-ghost', type: 'button', text: 'Remove', onclick: () => { r.contact.photo = ''; msg.textContent = ''; paint(); touch(); add.focus(); } });
+    function paint() {
+      const src = T.photoSrc(r.contact);
+      preview.innerHTML = src ? `<img src="${src}" alt="">` : '';
+      preview.classList.toggle('is-empty', !src);
+      add.textContent = src ? 'Change photo' : 'Add photo';
+      remove.hidden = !src;
+    }
+    file.addEventListener('change', async () => {
+      const f = file.files && file.files[0];
+      file.value = '';
+      if (!f) return;
+      msg.style.color = '';
+      msg.textContent = 'Preparing photo…';
+      try {
+        r.contact.photo = await shrinkPhoto(f);
+        msg.textContent = r.template === 'photo' ? '' : 'Photo saved. It shows on the Photo template, which you can pick in Select template.';
+        paint();
+        touch();
+      } catch (e) {
+        msg.style.color = 'var(--red)';
+        msg.textContent = 'That file couldn’t be used as a photo. Try a JPEG or PNG under 20 MB.';
+      }
+    });
+    paint();
+    return h('div', { class: 'field photo-field' },
+      h('span', { class: 'label', text: 'Photo (optional)' }),
+      h('div', { class: 'photo-row' }, preview,
+        h('div', { class: 'photo-actions' },
+          h('div', { class: 'add-row' }, add, remove),
+          h('div', { class: 'hint', text: 'Shows on the Photo template. Many employers in the US and UK prefer resumes without a photo.' }))),
+      file, msg);
+  }
+
+  // Square-crop and downscale an image file to a 320 px JPEG data URL. Tall pictures are cropped a little
+  // above center so faces stay in frame; transparent PNGs get a white backdrop.
+  function shrinkPhoto(f) {
+    return new Promise((resolve, reject) => {
+      if (!/^image\//.test(f.type) || f.size > 20 * 1024 * 1024) { reject(new Error('type')); return; }
+      const url = URL.createObjectURL(f);
+      const img = new Image();
+      img.onload = () => {
+        const w = img.naturalWidth, ht = img.naturalHeight, side = Math.min(w, ht);
+        URL.revokeObjectURL(url);
+        if (!side) { reject(new Error('empty')); return; }
+        const out = 320;
+        const cv = document.createElement('canvas');
+        cv.width = cv.height = out;
+        const ctx = cv.getContext('2d');
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, out, out);
+        ctx.drawImage(img, (w - side) / 2, (ht - side) * 0.3, side, side, 0, 0, out, out);
+        resolve(cv.toDataURL('image/jpeg', 0.85));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('decode')); };
+      img.src = url;
     });
   }
 

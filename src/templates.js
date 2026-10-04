@@ -7,6 +7,7 @@
     { id: 'sidebar', name: 'Two-column', note: 'Skills and education in a side column' },
     { id: 'gutter', name: 'Side headings', note: 'Headings in a left gutter' },
     { id: 'banner', name: 'Header band', note: 'Bold color band behind your name' },
+    { id: 'photo', name: 'Photo', note: 'Your photo atop a tinted side column' },
     { id: 'ats', name: 'ATS simple', note: 'Plain single column that parses cleanly' },
   ];
 
@@ -165,6 +166,22 @@
     return esc(item.start || end || '');
   }
 
+  // Only a photo the app itself produced is ever put into the page: a base64 JPEG, PNG or WebP data URL.
+  // Anything else (a URL, markup, a script) is ignored, which matters for photos that arrive in a restored backup.
+  const PHOTO_RE = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/;
+  function photoSrc(c) { return c && typeof c.photo === 'string' && PHOTO_RE.test(c.photo) ? c.photo : ''; }
+  function initials(name) {
+    const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return '';
+    return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
+  }
+  function renderPhoto(c) {
+    const src = photoSrc(c);
+    if (src) return `<div class="rs-photo"><img src="${src}" alt=""></div>`;
+    const ini = initials(c && c.name);
+    return `<div class="rs-photo rs-photo-empty" aria-hidden="true">${esc(ini)}</div>`;
+  }
+
   function contactParts(c) {
     return [c.email, c.phone, c.location, c.linkedin, c.website].filter((x) => x && String(x).trim());
   }
@@ -183,7 +200,7 @@
       body = '<div class="rs-skills">' + ls.map((l) => {
         const m = l.match(/^([^:]{1,40}):\s*(.*)$/);
         const items = (m ? m[2] : l).split(/\s*,\s*/).filter(Boolean);
-        const list = tpl === 'sidebar'
+        const list = tpl === 'sidebar' || tpl === 'photo'
           ? '<ul class="rs-chips">' + items.map((i) => `<li>${esc(i)}</li>`).join('') + '</ul>'
           : `<span>${items.map(esc).join(' · ')}</span>`;
         return `<div class="rs-skill">${m ? `<strong>${esc(m[1])}</strong>` : ''}${list}</div>`;
@@ -220,9 +237,9 @@
 
   function renderHeader(c, tpl) {
     const parts = contactParts(c);
-    const sep = tpl === 'sidebar' ? '' : '<span class="rs-sep" aria-hidden="true">·</span>';
+    const sep = tpl === 'sidebar' || tpl === 'photo' ? '' : '<span class="rs-sep" aria-hidden="true">·</span>';
     const contact = parts.length ? `<div class="rs-contact">${parts.map((p) => `<span>${esc(p)}</span>`).join(sep)}</div>` : '';
-    return `<header class="rs-head"><h1 class="rs-name">${esc(c.name) || 'Your Name'}</h1>${c.headline ? `<div class="rs-headline">${esc(c.headline)}</div>` : ''}${tpl === 'sidebar' ? '' : contact}</header>`;
+    return `<header class="rs-head"><h1 class="rs-name">${esc(c.name) || 'Your Name'}</h1>${c.headline ? `<div class="rs-headline">${esc(c.headline)}</div>` : ''}${tpl === 'sidebar' || tpl === 'photo' ? '' : contact}</header>`;
   }
 
   function sheetStyle(r) {
@@ -236,7 +253,14 @@
     const tpl = r.template || 'classic';
     const secs = r.sections || [];
     let inner;
-    if (tpl === 'sidebar') {
+    if (tpl === 'photo') {
+      // Photo, contact and the short sections in a tinted side column; name and the long sections in the main column.
+      const parts = contactParts(r.contact);
+      const contact = parts.length ? `<section class="rs-sec rs-sec-contact"><h2 class="rs-h">Contact</h2><div class="rs-body"><ul class="rs-list rs-contact-list">${parts.map((p) => `<li>${esc(p)}</li>`).join('')}</ul></div></section>` : '';
+      const side = secs.filter((s) => SIDE_TYPES.has(s.type)).map((s) => renderSection(s, tpl)).join('');
+      const main = secs.filter((s) => !SIDE_TYPES.has(s.type)).map((s) => renderSection(s, tpl)).join('');
+      inner = `<aside class="rs-side">${renderPhoto(r.contact)}${contact}${side}</aside><div class="rs-main">${renderHeader(r.contact, tpl)}${main}</div>`;
+    } else if (tpl === 'sidebar') {
       const parts = contactParts(r.contact);
       const contact = parts.length ? `<section class="rs-sec rs-sec-contact"><h2 class="rs-h">Contact</h2><div class="rs-body"><ul class="rs-list rs-contact-list">${parts.map((p) => `<li>${esc(p)}</li>`).join('')}</ul></div></section>` : '';
       const side = secs.filter((s) => SIDE_TYPES.has(s.type)).map((s) => renderSection(s, tpl)).join('');
@@ -274,5 +298,5 @@
     return out.join('\n').trim() + '\n';
   }
 
-  root.ResumeTemplates = { TEMPLATES, PRESETS, FONTS, ACCENTS, SECTION_TYPES, FORMATS, MARGINS, TEXT_SIZES, applyFormat, uid, blankItem, blankSection, blankResume, sampleResume, renderResume, plainText, esc };
+  root.ResumeTemplates = { TEMPLATES, PRESETS, FONTS, ACCENTS, SECTION_TYPES, FORMATS, MARGINS, TEXT_SIZES, applyFormat, uid, blankItem, blankSection, blankResume, sampleResume, renderResume, plainText, esc, photoSrc };
 })(typeof self !== 'undefined' ? self : this);
