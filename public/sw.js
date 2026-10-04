@@ -1,5 +1,5 @@
 // Offline support: the app is one page, so cache it and its static files and serve them when offline.
-const CACHE = 'inkwell-v2';
+const CACHE = 'inkwell-v3';
 const SHELL = ['./', './index.html', './favicon.svg', './site.webmanifest', './icon-192.png', './privacy.html', './terms.html'];
 
 self.addEventListener('install', (e) => {

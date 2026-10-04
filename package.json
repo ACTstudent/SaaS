@@ -2,10 +2,9 @@
   "name": "inkwell-resume-builder",
   "version": "0.1.0",
   "private": true,
-  "description": "Client-side resume builder with a rule-based Resume Writing Assistant. No AI APIs; the only server code is the PayPal payment function.",
+  "description": "Free client-side resume builder with a rule-based Resume Writing Assistant. No AI APIs and no server code.",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "node --test test/engine.test.js test/license.test.js test/templates.test.js",
-    "keygen": "node scripts/keygen.mjs"
+    "test": "node --test test/engine.test.js test/templates.test.js"
   }
 }

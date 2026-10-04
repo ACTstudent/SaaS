@@ -117,19 +117,12 @@ button, input, textarea, select { font: inherit; color: inherit; }
 .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 18px; }
 .toplink { color: var(--ink-2); font-weight: 600; text-decoration: none; font-size: 15px; }
 .toplink:hover { color: var(--blue); }
-.plan-pill {
-  display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border-radius: 999px;
-  border: 0; background: var(--field); font-size: 13px; font-weight: 600; cursor: pointer; color: var(--ink-2);
-}
-.plan-pill:hover { background: var(--field-hover); }
-.plan-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
-.plan-pill.is-plus .dot { background: var(--green); }
 body.in-app .topnav, body.in-app #top-cta { display: none; }
 body.in-editor .topbar { display: none; }
 @media (max-width: 900px) { .topnav { display: none; } }
 @media (max-width: 600px) {
   .topbar { padding: 10px 16px; gap: 10px; min-height: 58px; }
-  .plan-pill .plan-label, .toplink { display: none; }
+  .toplink { display: none; }
   #top-cta { min-height: 38px; padding: 0 14px; font-size: 14px; }
 }
 
@@ -169,7 +162,6 @@ body:not(.in-app) .topnav a { color: #41454E; }
 body:not(.in-app) .topnav a:hover { color: #16181D; text-decoration: underline; text-underline-offset: 6px; text-decoration-thickness: 1px; }
 body:not(.in-app) #top-cta { background: #16181D; color: #FFFFFF; border-radius: 6px; }
 body:not(.in-app) #top-cta:hover { background: #2B2E35; }
-body:not(.in-app) .plan-pill { background: transparent; border: 1px solid #D9D7D1; white-space: nowrap; }
 
 /* Buttons used on the landing only */
 .btn-ink { background: var(--lp-ink); color: #FFFFFF; border-radius: 6px; }
@@ -330,17 +322,6 @@ body:not(.in-app) .plan-pill { background: transparent; border: 1px solid #D9D7D
 .feature p { color: var(--lp-ink-2); font-size: 15px; }
 @media (max-width: 760px) { .feature-grid { grid-template-columns: minmax(0, 1fr); } }
 
-/* Pricing */
-.pricing { display: grid; grid-template-columns: repeat(2, minmax(0, 360px)); gap: 24px; justify-content: center; }
-.price-card { position: relative; background: var(--lp-card); border: 1px solid var(--lp-rule); border-radius: 10px; padding: 34px; display: grid; gap: 20px; align-content: start; box-shadow: 0 1px 2px rgba(22, 24, 29, .05); }
-.price-card.featured { border-color: var(--lp-ink); box-shadow: var(--lp-sheet); }
-.price-card h3 { font-family: var(--lp-serif); font-size: 26px; font-weight: 500; }
-.price { display: flex; align-items: baseline; gap: 8px; padding-bottom: 18px; border-bottom: 1px solid var(--lp-rule); }
-.price strong { font-family: var(--lp-serif); font-size: 64px; font-weight: 500; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: lining-nums tabular-nums; }
-.price span { color: var(--lp-muted); font-family: var(--lp-serif); font-style: italic; font-size: 20px; }
-.ribbon { position: absolute; top: -13px; left: 34px; background: var(--lp-ink); color: #FFFFFF; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 999px; }
-@media (max-width: 720px) { .pricing { grid-template-columns: minmax(0, 1fr); } }
-
 /* FAQ: question list beside its heading */
 .faq-layout { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 56px; align-items: start; }
 .faq-layout .section-head { margin-bottom: 0; }
@@ -415,8 +396,6 @@ select.input { appearance: auto; }
 .dash-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
 .dash-head h1 { font-size: 34px; font-weight: 700; letter-spacing: -0.02em; }
 .usage { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin: 14px 0 32px; padding-bottom: 20px; border-bottom: 1px solid var(--line); font-size: 15px; color: var(--ink-2); }
-.usage-bar { flex: 0 0 200px; height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; }
-.usage-bar i { display: block; height: 100%; background: var(--blue); border-radius: 99px; }
 .dash-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px 48px; }
 .doc-row { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 24px; align-items: start; }
 .doc-row .thumb-btn { background: none; border: 0; padding: 0; cursor: pointer; display: block; width: 100%; border-radius: 6px; }
@@ -769,5 +748,3 @@ select.input { appearance: auto; }
   #print-root .t-banner .rs-head { margin: 0 0 6px; }
 }
 
-.paypal-box { min-height: 52px; }
-.paypal-box .hint { margin: 0; }

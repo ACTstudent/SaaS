@@ -1,14 +1,10 @@
-/* Inkwell Resume Builder: app shell, dashboard, editor, live preview, assistant panel and plan limits. */
+/* Inkwell Resume Builder: app shell, dashboard, editor, live preview and assistant panel. Free, with no resume limit. */
 (function () {
   'use strict';
   const T = window.ResumeTemplates;
   const A = window.ResumeAssistant;
-  const L = window.ResumeLicense;
-  const CFG = window.InkwellConfig || {};
 
   const STORE_KEY = 'inkwell.resumes.v1';
-  const PLANS = { free: { max: 3, label: 'Free' }, plus: { max: 20, label: 'Upgraded' } };
-  const PRICE = CFG.price || '$10';
   const BACKUP_APP = 'inkwell-resumes';
   const SHEET = { letter: { w: 816, h: 1056, label: 'Letter' }, a4: { w: 794, h: 1123, label: 'A4' } };
 
@@ -55,14 +51,15 @@
   }
 
   /* -------------------------------------------------------------- store */
-  function defaultStore() { return { plan: 'free', resumes: [T.sampleResume()], lastId: null, license: '', testUnlock: false }; }
+  function defaultStore() { return { resumes: [T.sampleResume()], lastId: null }; }
   function load() {
     try {
       const raw = localStorage.getItem(STORE_KEY);
       if (raw) {
         const d = JSON.parse(raw);
         if (d && Array.isArray(d.resumes)) {
-          if (!PLANS[d.plan]) d.plan = 'free';
+          // Fields left over from the paid plan, which no longer exists
+          delete d.plan; delete d.license; delete d.testUnlock; delete d.pendingOrder;
           // Resumes saved before these settings existed keep their old look
           d.resumes.forEach((r) => { r.margin = r.margin || 'narrow'; r.textSize = r.textSize || 'normal'; r.format = r.format || 'chronological'; });
           return d;
@@ -72,50 +69,32 @@
     return defaultStore();
   }
   let store = load();
-  // Orders this tab has finished with, so another tab's stale copy can't bring them back.
-  const resolvedOrders = new Set();
-  // Another tab may have bought the upgrade (or be finishing a payment) since this tab loaded. Keep that
-  // instead of writing this tab's older plan over it. Returns true when something changed.
-  function mergeEntitlement(d) {
-    if (!d || typeof d !== 'object') return false;
-    let changed = false;
-    if (d.plan === 'plus' && d.license && d.license !== store.license && !(store.plan === 'plus' && store.license)) {
-      store.license = d.license;
-      store.plan = 'plus';
-      store.testUnlock = false;
-      if (!d.pendingOrder && store.pendingOrder) { resolvedOrders.add(store.pendingOrder); store.pendingOrder = ''; } // finished in that tab
-      changed = true;
-    }
-    if (d.pendingOrder && !store.pendingOrder && !resolvedOrders.has(d.pendingOrder) && !(store.plan === 'plus' && store.license)) {
-      store.pendingOrder = d.pendingOrder;
-      changed = true;
-    }
-    return changed;
-  }
-  function readStored() {
-    try { return JSON.parse(localStorage.getItem(STORE_KEY) || 'null'); } catch (e) { return null; }
-  }
+  // With no resume limit, the browser's storage (about 5 MB) is the only ceiling. Say so when it's reached
+  // instead of silently dropping the latest changes.
+  let warnedFull = false;
   function write() {
     try {
-      mergeEntitlement(readStored());
       localStorage.setItem(STORE_KEY, JSON.stringify(store));
-    } catch (e) { /* storage unavailable */ }
+      warnedFull = false;
+    } catch (e) {
+      if (warnedFull || !e || (e.name !== 'QuotaExceededError' && e.code !== 22)) return; // storage unavailable
+      warnedFull = true;
+      toast('This browser’s storage is full, so your latest changes aren’t saved. Back up, then delete resumes you no longer need.', 8000);
+    }
   }
   const persist = debounce(write, 250);
   function saveNow() { write(); }
 
   const counted = () => store.resumes.filter((r) => !r.isExample).length;
-  const limit = () => PLANS[store.plan].max;
-  const canCreate = () => counted() < limit();
 
   /* -------------------------------------------------------------- toast */
   let toastTimer;
-  function toast(msg) {
+  function toast(msg, ms) {
     const t = $('#toast');
     t.textContent = msg;
     t.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+    toastTimer = setTimeout(() => t.classList.remove('show'), ms || 2400);
   }
 
   /* -------------------------------------------------------------- modal */
@@ -132,314 +111,9 @@
   }
   function closeModal() { $('#modal-root').innerHTML = ''; }
 
-  function openUpgrade(reason) {
-    openModal((m, close) => {
-      if (store.plan === 'plus') {
-        const full = counted() >= limit();
-        m.append(
-          h('div', { class: 'eyebrow', text: 'Upgraded plan' }),
-          h('h2', { text: full ? `You’ve reached ${limit()} resumes` : `You can keep up to ${limit()} resumes` }),
-          h('p', { class: 'muted', text: full ? 'Delete a resume you no longer need to make room for a new one.' : `You’re using ${counted()} of ${limit()}. No subscription, nothing renews.` }),
-          store.license ? h('div', { class: 'field' }, h('label', { for: 'license-saved', text: 'Your license key' }), ...keyPanel(store.license), h('div', { class: 'hint', text: 'Paste it into the upgrade window on another browser or device. It’s also saved in backups.' })) : null,
-          h('div', { class: 'modal-actions' }, h('button', { class: 'btn btn-primary', type: 'button', text: 'Done', onclick: close })),
-        );
-        return;
-      }
-      const note = h('div', { class: 'note warn', hidden: true });
-      const actions = h('div', { class: 'modal-actions' });
-      let pay = null;
-      let paypalBox = null;
-      let pendingBox = null;
-      if (CFG.paypalClientId) {
-        // PayPal's own buttons (PayPal account or card) render here; the server sets the price.
-        paypalBox = h('div', { class: 'paypal-box', id: 'paypal-buttons' }, h('p', { class: 'hint', text: 'Loading PayPal…' }));
-        if (store.pendingOrder) {
-          // A payment from earlier hasn't finished unlocking. Offer to finish it, not to pay again.
-          const orderID = store.pendingOrder;
-          paypalBox.hidden = true;
-          const again = h('button', { class: 'linkish', type: 'button', text: 'I wasn’t charged. Start a new payment', onclick: () => { again.hidden = true; paypalBox.hidden = false; mountPayPal(paypalBox, note, close, m); } });
-          pendingBox = h('div', { class: 'note' },
-            h('p', { style: 'margin:0 0 10px', text: 'You approved a PayPal payment earlier that hasn’t finished unlocking.' }),
-            h('div', { class: 'add-row' }, h('button', { class: 'btn btn-sm btn-primary', type: 'button', text: 'Finish unlocking', onclick: async (e) => {
-              e.target.disabled = true;
-              e.target.textContent = 'Checking…';
-              const res = await claimOrder(orderID);
-              close();
-              await finishPurchase(orderID, res);
-            } }), again));
-        } else {
-          mountPayPal(paypalBox, note, close, m);
-        }
-      } else {
-        pay = h('button', { class: 'btn btn-primary', type: 'button', text: `Pay ${PRICE} once`, onclick: () => {
-          note.hidden = false;
-          note.textContent = 'Checkout isn’t connected yet. You can unlock the upgrade on this device to try the 20-resume plan.';
-          pay.replaceWith(h('button', { class: 'btn btn-primary', type: 'button', text: 'Unlock for testing', onclick: () => {
-            store.plan = 'plus';
-            store.testUnlock = true;
-            saveNow();
-            close();
-            afterPlanChange();
-            toast('Upgraded. You can now keep up to 20 resumes.');
-          } }));
-        } });
-      }
-      actions.append(h('button', { class: 'btn', type: 'button', text: 'Not now', 'data-dismiss': '1', onclick: close }));
-      if (pay) actions.append(pay);
-
-      // Already paid: paste a license key (for a new browser or device)
-      const keyMsg = h('div', { class: 'hint', 'aria-live': 'polite' });
-      const keyInput = h('textarea', { class: 'input', id: 'license-input', rows: 2, placeholder: 'INK1.…', spellcheck: 'false', style: 'font-family:var(--font-mono);font-size:12.5px;resize:vertical' });
-      const keyBox = h('div', { class: 'field', hidden: true },
-        h('label', { for: 'license-input', text: 'License key' }), keyInput,
-        h('div', { class: 'add-row' }, h('button', { class: 'btn btn-sm btn-primary', type: 'button', text: 'Unlock', onclick: async () => {
-          keyMsg.textContent = 'Checking…';
-          keyMsg.style.color = '';
-          const res = await applyLicense(keyInput.value);
-          if (res.ok) { close(); toast('Upgrade unlocked on this browser'); return; }
-          keyMsg.style.color = 'var(--pencil)';
-          keyMsg.textContent = licenseError(res.reason);
-        } })), keyMsg);
-      const keyToggle = h('button', { class: 'linkish', type: 'button', text: 'Already paid? Enter your license key', onclick: () => { keyBox.hidden = false; keyToggle.hidden = true; keyInput.focus(); } });
-
-      m.append(...[
-        h('div', { class: 'eyebrow', text: reason === 'limit' ? `You’ve used your ${PLANS.free.max} free resumes` : 'One-time upgrade' }),
-        h('h2', { text: `Upgrade once for ${PRICE}. Keep up to 20 resumes.` }),
-        h('ul', {}, h('li', { text: '20 resumes instead of 3' }), h('li', { text: 'Every template, preset and assistant feature (you already have these)' }), h('li', { text: 'No subscription. You pay once and nothing renews.' })),
-        pendingBox,
-        paypalBox,
-        note,
-        actions,
-        h('div', {}, keyToggle),
-        keyBox,
-      ].filter(Boolean));
-    });
-  }
-
-  function licenseError(reason) {
-    if (reason === 'nokey') return 'License keys can’t be checked in this preview yet.';
-    if (reason === 'unsupported') return 'This browser can’t check license keys. Update it, or try Chrome, Safari, Edge or Firefox.';
-    if (reason === 'format') return 'That doesn’t look like a complete license key. Paste the whole key, starting with INK1.';
-    return 'That key isn’t valid. Check that you pasted the whole key.';
-  }
-
-  async function applyLicense(key) {
-    const res = await L.verify(key, CFG.licensePublicKey);
-    if (res.ok) {
-      store.license = L.normalize(key);
-      store.plan = 'plus';
-      store.testUnlock = false;
-      saveNow();
-      afterPlanChange();
-    }
-    return res;
-  }
-
-  function afterPlanChange() {
-    refreshPlan();
-    if (!$('#view-dashboard').hidden) renderDashboard();
-  }
-
-  // The stored plan only counts if a valid key backs it (or the preview's testing unlock).
-  async function checkStoredPlan() {
-    if (store.plan !== 'plus') return;
-    if (store.license) {
-      const res = await L.verify(store.license, CFG.licensePublicKey);
-      if (res.ok || res.reason === 'unsupported') return;
-    } else if (store.testUnlock && !CFG.paypalClientId) {
-      return;
-    }
-    store.plan = 'free';
-    store.testUnlock = false;
-    saveNow();
-    afterPlanChange();
-  }
-
-  /* ------------------------------------------------------------ PayPal */
-  const PAY_API = () => (CFG.paymentApi || '/api/paypal').replace(/\/$/, '');
-  let paypalSdk = null;
-  function loadPayPal() {
-    if (window.paypal && window.paypal.Buttons) return Promise.resolve(window.paypal);
-    if (!paypalSdk) {
-      paypalSdk = new Promise((resolve, reject) => {
-        const src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(CFG.paypalClientId)}&currency=USD&intent=capture&components=buttons`;
-        const tag = h('script', { src, 'data-namespace': 'paypal' });
-        tag.onload = () => (window.paypal && window.paypal.Buttons ? resolve(window.paypal) : reject(new Error('sdk')));
-        tag.onerror = () => reject(new Error('sdk'));
-        document.head.append(tag);
-      });
-      paypalSdk.catch(() => { paypalSdk = null; });
-    }
-    return paypalSdk;
-  }
-
-  async function postJson(path, body) {
-    const r = await fetch(PAY_API() + path, { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json' }, body: JSON.stringify(body || {}) });
-    const data = await r.json().catch(() => ({}));
-    return { ok: r.ok, data };
-  }
-
-  // Ask the server to take the approved payment and hand back this order's license key.
-  async function claimOrder(orderID) {
-    try {
-      const { ok, data } = await postJson('/capture', { orderID });
-      if (ok && data.key) return { key: data.key };
-      return { error: data.error || 'unknown' };
-    } catch (e) {
-      return { error: 'network' };
-    }
-  }
-
-  function mountPayPal(box, note, close, modal) {
-    const say = (msg, warn) => { note.hidden = false; note.className = warn === false ? 'note' : 'note warn'; note.textContent = msg; };
-    const fail = (msg) => say(msg);
-    loadPayPal().then((paypal) => {
-      if (!box.isConnected) return;
-      box.innerHTML = '';
-      paypal.Buttons({
-        style: { layout: 'vertical', shape: 'rect', label: 'pay', height: 45 },
-        createOrder: async () => {
-          note.hidden = true;
-          const { ok, data } = await postJson('/order');
-          if (!ok || !data.id) throw new Error(data.error || 'order');
-          return data.id;
-        },
-        onApprove: async (data, actions) => {
-          // Remember the order first, so a closed tab or dropped connection can finish unlocking on the next visit.
-          store.pendingOrder = data.orderID;
-          resolvedOrders.delete(data.orderID);
-          saveNow();
-          // Keep the window open while the payment completes.
-          const back = modal && modal.parentElement;
-          if (back) back.dataset.sticky = '1';
-          const dismiss = modal && modal.querySelector('[data-dismiss]');
-          if (dismiss) dismiss.disabled = true;
-          box.hidden = true;
-          say('Finishing your payment… Keep this window open.', false);
-          const res = await claimOrder(data.orderID);
-          const stillOpen = box.isConnected;
-          if (res.error === 'declined' && stillOpen && actions && actions.restart) {
-            clearPending(data.orderID);
-            if (back) delete back.dataset.sticky;
-            if (dismiss) dismiss.disabled = false;
-            box.hidden = false;
-            say('PayPal declined that payment, so you haven’t been charged. Choose another way to pay.');
-            return actions.restart();
-          }
-          if (stillOpen) close();
-          await finishPurchase(data.orderID, res);
-        },
-        onCancel: () => fail('Payment cancelled. You haven’t been charged.'),
-        onError: () => fail('PayPal couldn’t start the payment. Try again in a moment.'),
-      }).render(box).catch(() => fail('PayPal couldn’t load. Try again in a moment.'));
-    }).catch(() => {
-      box.innerHTML = '';
-      fail('PayPal couldn’t load. Check your connection, or turn off any blocker for paypal.com, then reopen this window.');
-    });
-  }
-
-  // Errors that retrying this order won't fix: stop remembering it.
-  const FINAL_ERRORS = new Set(['missing_order', 'not_found', 'wrong_product', 'not_approved', 'refunded', 'declined', 'failed', 'not_paid']);
-
-  function clearPending(orderID) {
-    if (orderID) resolvedOrders.add(orderID);
-    if (!orderID || store.pendingOrder === orderID) store.pendingOrder = '';
-    saveNow();
-  }
-
-  // Read-only key box with a copy button
-  function keyPanel(key) {
-    const ta = h('textarea', { class: 'input', id: 'license-saved', rows: 3, readonly: true, style: 'font-family:var(--font-mono);font-size:12.5px' });
-    ta.value = key;
-    const copy = h('button', { class: 'btn btn-sm', type: 'button', text: 'Copy key', onclick: () => {
-      try { navigator.clipboard.writeText(key).then(() => toast('Key copied'), () => ta.select()); } catch (e) { ta.select(); }
-    } });
-    return [ta, h('div', { class: 'add-row' }, copy)];
-  }
-
-  async function finishPurchase(orderID, res) {
-    let lic = { ok: false };
-    if (res.key) {
-      lic = await applyLicense(res.key);
-      if (!lic.ok) {
-        // The server only signs keys for paid orders, so keep the key whatever this browser can check.
-        store.license = L.normalize(res.key);
-        if (lic.reason === 'unsupported') { store.plan = 'plus'; store.testUnlock = false; } // same rule as checkStoredPlan
-        saveNow();
-        afterPlanChange();
-      }
-    }
-    if (res.key || FINAL_ERRORS.has(res.error)) clearPending(orderID);
-    showPurchaseResult(orderID, res, lic.ok || lic.reason === 'unsupported', lic.reason);
-  }
-
-  function showPurchaseResult(orderID, res, unlocked, reason) {
-    const key = res.key || '';
-    const err = res.error || 'unknown';
-    const help = CFG.supportEmail ? ` If you need help, email ${CFG.supportEmail} with your PayPal receipt.` : '';
-    if (key) {
-      openModal((m, close) => {
-        m.append(...[
-          h('div', { class: 'eyebrow', text: 'Payment received' }),
-          h('h2', { text: unlocked ? 'You’re upgraded. Keep up to 20 resumes.' : 'Your payment went through' }),
-          h('p', { class: 'muted', text: unlocked
-            ? 'Save this license key. Paste it into the upgrade window to unlock on another browser or device. You can see it again from the plan button.'
-            : 'Here is your license key, but this copy of the app couldn’t confirm it. Save the key and contact support so we can fix it.' + help }),
-          ...keyPanel(key),
-          h('div', { class: 'modal-actions' },
-            unlocked
-              ? h('button', { class: 'btn btn-primary', type: 'button', text: 'Start building', onclick: () => { close(); location.hash = 'resumes'; } })
-              : h('button', { class: 'btn btn-primary', type: 'button', text: 'Close', onclick: close })),
-        ]);
-      }, { sticky: true });
-      return;
-    }
-    const final = FINAL_ERRORS.has(err);
-    const why = {
-      pending: 'PayPal is still processing your payment. We’ll finish unlocking the next time you open the app, or you can check again now.',
-      refunded: 'This payment was refunded, so it can’t unlock the upgrade.',
-      not_approved: 'The payment wasn’t approved in PayPal, so you haven’t been charged.',
-      declined: 'PayPal declined the payment, so you haven’t been charged. Open the upgrade window to try another way to pay.',
-      failed: 'PayPal couldn’t complete this payment, so you haven’t been charged. Open the upgrade window to try again or pay another way.',
-      not_paid: 'The payment didn’t go through, so you haven’t been charged. Open the upgrade window to try again.',
-      wrong_product: 'This PayPal order can’t unlock the upgrade.' + help,
-      not_found: 'PayPal couldn’t find this order.' + help,
-      missing_order: 'Something went wrong with this order.' + help,
-      not_configured: 'The payment server isn’t set up correctly yet. Try again later.' + help,
-    }[err] || 'We couldn’t reach the payment server. If PayPal took your payment, it’s safe: try again to finish unlocking.' + help;
-    openModal((m, close) => {
-      m.append(
-        h('div', { class: 'eyebrow', text: 'Payment' }),
-        h('h2', { text: err === 'pending' ? 'Your payment is processing' : final ? 'The payment didn’t go through' : 'We couldn’t finish unlocking yet' }),
-        h('p', { class: 'muted', text: why }),
-        h('div', { class: 'modal-actions' },
-          h('button', { class: 'btn', type: 'button', text: 'Close', onclick: close }),
-          final ? null : h('button', { class: 'btn btn-primary', type: 'button', text: 'Try again', onclick: async (e) => {
-            e.target.disabled = true;
-            e.target.textContent = 'Checking…';
-            const again = await claimOrder(orderID);
-            close();
-            await finishPurchase(orderID, again);
-          } })));
-    });
-  }
-
-  // A payment approved on an earlier visit that never finished unlocking (closed tab, lost connection).
-  async function resumePendingOrder() {
-    const id = store.pendingOrder;
-    if (!id || !CFG.paypalClientId) return;
-    const res = await claimOrder(id);
-    if (!res.key && !FINAL_ERRORS.has(res.error)) {
-      // Still can't finish: don't block the app with a dialog on every visit.
-      toast(res.error === 'pending' ? 'Your PayPal payment is still processing.' : 'Your PayPal payment hasn’t finished unlocking. Open the upgrade window to try again.');
-      return;
-    }
-    await finishPurchase(id, res);
-  }
-
   /* ------------------------------------------------------------ backups */
   function exportBackup() {
-    const data = { app: BACKUP_APP, version: 1, exportedAt: new Date().toISOString(), license: store.license || '', resumes: store.resumes.filter((r) => !r.isExample) };
+    const data = { app: BACKUP_APP, version: 1, exportedAt: new Date().toISOString(), resumes: store.resumes.filter((r) => !r.isExample) };
     const text = JSON.stringify(data, null, 2);
     const name = `inkwell-backup-${new Date().toISOString().slice(0, 10)}.json`;
     if (!framed()) {
@@ -465,17 +139,15 @@
     });
   }
 
-  async function restoreBackup(text) {
+  function restoreBackup(text) {
     let data;
     try { data = JSON.parse(text); } catch (e) { return { error: 'That file isn’t a backup. Choose the .json file you saved from Inkwell.' }; }
     if (!data || data.app !== BACKUP_APP || !Array.isArray(data.resumes)) return { error: 'That file isn’t an Inkwell backup.' };
-    if (data.license && store.plan !== 'plus') await applyLicense(data.license);
     const valid = data.resumes.filter((r) => r && typeof r === 'object' && Array.isArray(r.sections) && r.contact);
-    let added = 0, skipped = 0, same = 0;
+    let added = 0, same = 0;
     for (const r of valid) {
       const existing = store.resumes.find((x) => x.id === r.id);
       if (existing && JSON.stringify(existing) === JSON.stringify(r)) { same++; continue; }
-      if (!canCreate()) { skipped++; continue; }
       const copy = clone(r);
       if (existing) copy.id = T.uid('r');
       copy.isExample = false;
@@ -483,8 +155,8 @@
       added++;
     }
     saveNow();
-    afterPlanChange();
-    return { added, skipped, same };
+    if (!$('#view-dashboard').hidden) renderDashboard();
+    return { added, same };
   }
 
   function openRestore() {
@@ -496,15 +168,13 @@
         close();
         let t = `Restored ${res.added} resume${res.added === 1 ? '' : 's'}`;
         if (res.same) t += `, ${res.same} already here`;
-        if (res.skipped) t += `. ${res.skipped} didn’t fit your limit`;
         toast(t);
-        if (res.skipped) openUpgrade('limit');
       };
       file.addEventListener('change', () => {
         const f = file.files && file.files[0];
         if (!f) return;
         const rd = new FileReader();
-        rd.onload = async () => finish(await restoreBackup(String(rd.result || '')));
+        rd.onload = () => finish(restoreBackup(String(rd.result || '')));
         rd.onerror = () => finish({ error: 'That file couldn’t be read.' });
         rd.readAsText(f);
       });
@@ -516,17 +186,8 @@
         msg,
         h('div', { class: 'modal-actions' },
           h('button', { class: 'btn', type: 'button', text: 'Cancel', onclick: close }),
-          h('button', { class: 'btn btn-primary', type: 'button', text: 'Restore pasted backup', onclick: async () => finish(await restoreBackup(paste.value)) })));
+          h('button', { class: 'btn btn-primary', type: 'button', text: 'Restore pasted backup', onclick: () => finish(restoreBackup(paste.value)) })));
     });
-  }
-
-  /* -------------------------------------------------------------- plan pill */
-  function refreshPlan() {
-    const pill = $('#plan-pill');
-    pill.classList.toggle('is-plus', store.plan === 'plus');
-    $('#plan-label').textContent = PLANS[store.plan].label;
-    $('#plan-count').textContent = `${counted()} of ${limit()}`;
-    pill.title = `${counted()} of ${limit()} resumes used`;
   }
 
   /* -------------------------------------------------------------- resumes */
@@ -534,7 +195,6 @@
   const current = () => store.resumes.find((r) => r.id === currentId) || null;
 
   function createResume(kind, design) {
-    if (!canCreate()) { openUpgrade('limit'); return; }
     let r;
     if (kind === 'example') {
       r = T.sampleResume();
@@ -550,11 +210,9 @@
     T.applyFormat(r, format);
     store.resumes.unshift(r);
     saveNow();
-    refreshPlan();
     openResume(r.id);
   }
   function duplicateResume(id) {
-    if (!canCreate()) { openUpgrade('limit'); return; }
     const src = store.resumes.find((r) => r.id === id);
     const r = clone(src);
     r.id = T.uid('r');
@@ -563,14 +221,12 @@
     r.updatedAt = Date.now();
     store.resumes.splice(store.resumes.indexOf(src), 0, r);
     saveNow();
-    refreshPlan();
     renderDashboard();
     toast('Duplicated');
   }
   function deleteResume(id) {
     store.resumes = store.resumes.filter((r) => r.id !== id);
     saveNow();
-    refreshPlan();
     renderDashboard();
     toast('Deleted');
   }
@@ -704,13 +360,11 @@
       $('#view-landing').classList.add('lp-reveal');
     }
 
-    document.querySelectorAll('[data-upgrade]').forEach((b) => b.addEventListener('click', () => openUpgrade('pricing')));
     document.querySelectorAll('[data-create]').forEach((b) => b.addEventListener('click', (e) => { e.preventDefault(); startCreate(); }));
   }
 
-  // "Create my resume": pick blank or example content (or hit the plan limit)
+  // "Create my resume": pick blank or example content
   function startCreate(design) {
-    if (!canCreate()) { openUpgrade('limit'); return; }
     let format = 'chronological';
     openModal((m, close) => {
       const note = h('p', { class: 'format-note' });
@@ -811,13 +465,10 @@
   }
 
   function renderDashboard() {
-    refreshPlan();
     const usage = $('#usage');
     usage.innerHTML = '';
-    usage.append(
-      h('span', { class: 'num' }, h('strong', { text: `${counted()} of ${limit()}` }), store.plan === 'plus' ? ' resumes used' : ' free resumes used'),
-      h('span', { class: 'usage-bar', 'aria-hidden': 'true' }, h('i', { style: `width:${Math.min(100, (counted() / limit()) * 100)}%` })),
-      store.plan === 'plus' ? h('span', { class: 'muted', text: 'Upgraded plan' }) : h('button', { class: 'linkish', type: 'button', text: `Upgrade once for ${PRICE} to keep up to 20`, onclick: () => openUpgrade('dash') }));
+    const n = counted();
+    usage.append(h('span', { class: 'num' }, h('strong', { text: String(n) }), n === 1 ? ' resume' : ' resumes'), h('span', { class: 'muted', text: 'Free, with no limit' }));
 
     const list = $('#dash-grid');
     list.innerHTML = '';
@@ -844,19 +495,16 @@
           h('div', { class: 'when', text: `Updated ${fmtWhen(r.updatedAt)}` }),
           actions)));
     }
-    const full = !canCreate();
     list.append(h('button', { class: 'new-row', type: 'button', onclick: () => startCreate() },
       h('div', { class: 'new-tile', 'aria-hidden': 'true', text: '+' }),
-      h('div', {}, h('h3', { text: full ? 'Resume limit reached' : 'New resume' }),
-        h('p', { text: full ? (store.plan === 'plus' ? 'Delete a resume to make room for a new one.' : `Upgrade once for ${PRICE} to keep up to 20.`) : 'Create a tailored resume for each job you apply to.' }))));
+      h('div', {}, h('h3', { text: 'New resume' }),
+        h('p', { text: 'Create a tailored resume for each job you apply to.' }))));
 
     const foot = $('#dash-foot');
     foot.innerHTML = '';
-    if (store.resumes.some((r) => r.isExample)) foot.append(h('span', { text: 'The example resume doesn’t count toward your limit.' }));
     foot.append(h('span', { text: 'Resumes are saved in this browser.' }),
       h('button', { class: 'linkish', type: 'button', text: 'Back up resumes', onclick: exportBackup }),
       h('button', { class: 'linkish', type: 'button', text: 'Restore from backup', onclick: openRestore }));
-    if (store.plan === 'plus' && store.testUnlock) foot.append(h('button', { class: 'linkish', type: 'button', text: 'Reset to free plan (testing)', onclick: () => { store.plan = 'free'; store.testUnlock = false; saveNow(); renderDashboard(); toast('Back on the free plan'); } }));
   }
 
   /* ============================================================ Editor */
@@ -1761,8 +1409,6 @@
   /* ============================================================ init */
   function init() {
     initLanding();
-    refreshPlan();
-    $('#plan-pill').addEventListener('click', () => openUpgrade('pill'));
     $('#open-picker').addEventListener('click', openPicker);
     $('#picker-back').addEventListener('click', closePicker);
     $('#picker-pdf').addEventListener('click', () => { closePicker(); exportPdf(); });
@@ -1788,16 +1434,8 @@
       }
     }, 120));
     window.addEventListener('hashchange', route);
-    window.addEventListener('storage', (e) => {
-      if (e.key !== STORE_KEY) return;
-      let d = null;
-      try { d = JSON.parse(e.newValue || 'null'); } catch (err) { return; }
-      if (mergeEntitlement(d)) afterPlanChange();
-    });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (!$('#view-editor').hidden) layoutPreview(); });
     route();
-    checkStoredPlan();
-    resumePendingOrder();
     // Offline support on the live site (service workers don't run in the preview frame)
     if ('serviceWorker' in navigator && !framed() && /^https:|^http:\/\/localhost/.test(location.href)) {
       navigator.serviceWorker.register('sw.js').catch(() => {});
