@@ -19,3 +19,21 @@ test('sheet uses text size and margin settings', () => {
   r.margin = 'narrow'; r.textSize = 'large';
   assert.match(T.renderResume(r), /--rs-fs:15.33px;--rs-m:48px/);
 });
+test('photo template shows a valid photo, falls back to initials, and ignores anything else', () => {
+  const r = T.sampleResume();
+  r.template = 'photo';
+  assert.ok(T.TEMPLATES.some((t) => t.id === 'photo'));
+  assert.match(T.renderResume(r), /class="rs-photo rs-photo-empty"[^>]*>JR</);
+  const jpeg = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBD';
+  r.contact.photo = jpeg;
+  assert.ok(T.renderResume(r).includes(`<img src="${jpeg}" alt="">`));
+  for (const bad of ['javascript:alert(1)', 'https://example.com/me.jpg', 'data:image/svg+xml;base64,PHN2Zz4=', 'data:image/png;base64,abc" onerror="x']) {
+    r.contact.photo = bad;
+    const html = T.renderResume(r);
+    assert.ok(!html.includes('<img'), bad);
+    assert.ok(!html.includes('onerror'), bad);
+  }
+  // The photo never leaks into the plain-text export
+  r.contact.photo = jpeg;
+  assert.ok(!T.plainText(r).includes('data:image'));
+});
