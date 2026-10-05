@@ -769,7 +769,7 @@ select.input { appearance: auto; }
 @media print {
   body { background: #FFFFFF; }
   body > *:not(#print-root) { display: none !important; }
-  #print-root { display: block; }
+  #print-root { display: block; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
   #print-root .rs { width: auto; min-height: 0; padding: 0; box-shadow: none; }
   #print-root .t-sidebar .rs-head { padding: 0 0 18px; }
   #print-root .t-sidebar .rs-side { padding: 8px 18px 16px 16px; }

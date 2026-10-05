@@ -1435,7 +1435,14 @@
     const size = r.paper === 'a4' ? 'A4' : 'letter';
     let st = document.getElementById('page-size-style');
     if (!st) { st = h('style', { id: 'page-size-style' }); document.head.append(st); }
-    st.textContent = `@page { size: ${size}; margin: ${marginOf(r).px / 96}in; }`;
+    // No page margin, so the browser has no room to print its header and footer (date, title, address,
+    // page number) onto the resume. The resume's margins are drawn as padding repeated on every page instead.
+    // Browsers that can't repeat padding per page (Safari) keep real page margins; Safari leaves headers off by default.
+    const inches = marginOf(r).px / 96;
+    const perPage = window.CSS && CSS.supports && CSS.supports('box-decoration-break', 'clone');
+    st.textContent = perPage
+      ? `@page { size: ${size}; margin: 0; } #print-root { padding: ${inches}in; }`
+      : `@page { size: ${size}; margin: ${inches}in; }`;
     $('#print-root').innerHTML = T.renderResume(r);
     const safeName = (r.contact.name || r.name || 'resume').replace(/[^\w\- ]+/g, '').trim() || 'resume';
     const prevTitle = document.title;
